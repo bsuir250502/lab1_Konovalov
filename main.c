@@ -1,7 +1,7 @@
 #include "stdio.h"
 #include "stdlib.h"
-#ifndef _WIN32 || _WIN64
-	#include "stdio_ext.h"
+#ifndef _WIN32 || ifndef _WIN64
+	#include "std_ext.h"
     #define  fflush __fpurge
 #endif
 
@@ -14,18 +14,19 @@ typedef struct employees
 int input(employ_t*);
 int sort_up(employ_t*,int);
 int get_num(int*);
-int output_table(employ_t*,int);
+int output_table(employ_t*);
 char* month_name(int);
 
 int main(int argc,char **argv)
 {
 	employ_t *company;
-	int workers_n;
+	int workers_n,i,j;
+	char name[35];
 	company=(employ_t*)calloc(25,sizeof(employ_t));
 	workers_n=(input (company));
 	company=(employ_t*)realloc(company,workers_n*sizeof(employ_t));
 	sort_up(company,workers_n);
-	output_table(company,workers_n);
+	output_table(company);
 	free(company);
 	return (0);                    /* I like it */
 }
@@ -114,10 +115,8 @@ int sort_up(employ_t* company,int workers_n)
 	return 1;
 }
 
-int output_table(employ_t* company,int workers_n)
+int output_table(employ_t* comapany)
 {
-	int i,j;
-	char name[35];
 	printf ("Name%16c",' ');
 	for (i=0;i<12;i++)
 		printf ("%9s",month_name(i));
