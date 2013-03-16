@@ -1,6 +1,6 @@
 #include "stdio.h"
 #include "stdlib.h"
-#ifndef _WIN32 || _WIN64
+#ifndef _WIN32
 	#include "stdio_ext.h"
     #define  fflush __fpurge
 #endif
