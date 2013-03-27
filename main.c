@@ -4,15 +4,18 @@
 #include "stdio_ext.h"
 #define  fflush __fpurge
 #endif
+#define NAME_SIZE 16
 
 typedef struct employees {
-    char names[3][30];
+    char names[3][NAME_SIZE + 1];
     int salary[12];
 } employ_t;
 
 int input(employ_t *);
 int sort_up(employ_t *, int);
-int get_num(int *);
+int get_num(void);
+void _fgets(char *, int, FILE *);
+int compare(const void *, const void *);
 int output_table(employ_t *, int);
 char *month_name(int);
 
@@ -34,81 +37,75 @@ int input(employ_t * company)
     int i = 0, j = 0, k = 0;
     for (i = 0; i < 25; i++) {
         printf("Provide First Name. To end input press enter.\n");
-        fflush(stdin);
-        fgets(company[i].names[0], 29, stdin);
+        _fgets(company[i].names[0], NAME_SIZE, stdin);
         if (*company[i].names[0] == '\n')
             break;
         printf("Last Name\n");
-        fflush(stdin);
-        fgets(company[i].names[1], 29, stdin);
+        _fgets(company[i].names[1], NAME_SIZE, stdin);
         printf("Patronymic\n");
-        fflush(stdin);
-        fgets(company[i].names[2], 29, stdin);
+        _fgets(company[i].names[2], NAME_SIZE, stdin);
         for (j = 0; j < 12; j++) {
             printf("Provide salary for %s\n", month_name(j));
             fflush(stdin);
-            while (!get_num(&company[i].salary[j]))
+            while ((company[i].salary[j] = get_num()) == -1)
                 printf("Please print numbers. NUMBERS.\n");
-        }
-        for (j = 0; j < 3; j++) {
-            while (*(company[i].names[j] + k) != '\n')
-                k++;
-            *(company[i].names[j] + k) = '\0';
-            k = 0;
         }
     }
     return i;
 }
 
-int get_num(int *target)
+void _fgets(char *target, int length, FILE * source)
+{
+    int i = 0;
+    fflush(stdin);
+    fgets(target, length, source);
+    while (*(target + i) != '\n' && *(target + i))
+        i++;
+    if (*(target + i) == '\n' && i)
+        *(target + i) = '\0';
+    return;
+}
+
+int get_num(void)
 {
     char tmp = 'a';
     char buff[10];
     int i = 0, output = 0;
     fgets(buff, 8, stdin);
     if ((tmp = buff[i]) == '\n')
-        return 0;
+        return -1;
     do {
         if (tmp > '9' || tmp < '0')
-            return 0;
+            return -1;
         output = output * 10 + (tmp - '0');
         i++;
         tmp = buff[i];
     } while (tmp && tmp != '\n');
-    *target = output;
-    return 1;
+    return output;
 }
 
 char *month_name(int i)
 {
     char *month[] =
         { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
-"Oct", "Nov", "Dec" };
+        "Oct", "Nov", "Dec"
+    };
     return month[i];
 }
 
 int sort_up(employ_t * company, int workers_n)
 {
-    int i = 0, j = 0, k = 0, min;
-    employ_t temp;
-    for (i = 0; i < workers_n; i++) {
-        min = i;
-        for (j = i + 1; j < workers_n; j++)
-            if (*(company[j].names[1]) < *(company[min].names[1]))
-                min = j;
-            else if (*(company[j].names[1]) == *(company[i].names[1])) {
-                while (*(company[j].names[1] + k) ==
-                       *(company[i].names[1] + k))
-                    k++;
-                if (*(company[j].names[1] + k) <
-                    *(company[i].names[1] + k))
-                    min = j;
-            }
-        temp = company[min];
-        company[min] = company[i];
-        company[i] = temp;
-    }
+    qsort(company, workers_n, sizeof(employ_t), &compare);
     return 1;
+}
+
+int compare(const void *a, const void *b)
+{
+    int i = 0;
+    employ_t *first = (employ_t *) a, *second = (employ_t *) b;
+    while (!(*(first->names[1] + i) - *(second->names[1] + i)))
+        i++;
+    return *(first->names[1] + i) - *(second->names[1] + i);
 }
 
 int output_table(employ_t * company, int workers_n)
