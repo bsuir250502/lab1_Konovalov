@@ -1,4 +1,4 @@
-OBJ = lab1.o
+OBJ = main.o
 CFLAGS = -Wall -std=c89 -pedantic
 
 all: bin
