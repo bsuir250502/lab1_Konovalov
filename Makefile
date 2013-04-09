@@ -1,5 +1,5 @@
 OBJ = lab1.o
-CFLAGS = -Wall -std=c89 =pedantic
+CFLAGS = -Wall -std=c89 -pedantic
 
 all: bin
 
