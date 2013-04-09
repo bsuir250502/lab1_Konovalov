@@ -1,29 +1,30 @@
-#include "stdio.h"
-#include "stdlib.h"
-#ifndef _WIN32
-#include "stdio_ext.h"
-#define  fflush __fpurge
-#endif
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #define NAME_SIZE 16
+#define MAX_STUDENTS_NUMBER 25
 
 typedef struct employees {
-    char names[3][NAME_SIZE + 1];
+    char names[3][NAME_SIZE];
     int salary[12];
 } employ_t;
 
 int input(employ_t *);
 int sort_up(employ_t *, int);
 int get_num(void);
-void _fgets(char *, int, FILE *);
+void fgets_c(char *, int, FILE *);
 int compare(const void *, const void *);
 int output_table(employ_t *, int);
 char *month_name(int);
+int display_help(int argc, char**);
 
 int main(int argc, char **argv)
 {
     employ_t *company;
     int workers_n;
-    company = (employ_t *) calloc(25, sizeof(employ_t));
+    if(display_help(argc,argv))
+        return 0;
+    company = (employ_t *) calloc(MAX_STUDENTS_NUMBER, sizeof(employ_t));
     workers_n = (input(company));
     company = (employ_t *) realloc(company, workers_n * sizeof(employ_t));
     sort_up(company, workers_n);
@@ -34,35 +35,39 @@ int main(int argc, char **argv)
 
 int input(employ_t * company)
 {
-    int i = 0, j = 0, k = 0;
-    for (i = 0; i < 25; i++) {
-        printf("Provide First Name. To end input press enter.\n");
-        _fgets(company[i].names[0], NAME_SIZE, stdin);
+    int i = 0, j = 0;
+    for (i = 0; i < MAX_STUDENTS_NUMBER; i++) {
+        printf("Provide First Name. To end input press enter:\n");
+        fgets_c(company[i].names[0], NAME_SIZE, stdin);
         if (*company[i].names[0] == '\n')
             break;
-        printf("Last Name\n");
-        _fgets(company[i].names[1], NAME_SIZE, stdin);
-        printf("Patronymic\n");
-        _fgets(company[i].names[2], NAME_SIZE, stdin);
+        printf("Last Name:\n");
+        fgets_c(company[i].names[1], NAME_SIZE, stdin);
+        printf("Patronymic:\n");
+        fgets_c(company[i].names[2], NAME_SIZE, stdin);
         for (j = 0; j < 12; j++) {
             printf("Provide salary for %s\n", month_name(j));
             fflush(stdin);
             while ((company[i].salary[j] = get_num()) == -1)
-                printf("Please print numbers. NUMBERS.\n");
+                printf("Please print positive numbers.\n");
         }
     }
     return i;
 }
 
-void _fgets(char *target, int length, FILE * source)
+void fgets_c(char *target, int length, FILE * source)
 {
     int i = 0;
-    fflush(stdin);
-    fgets(target, length, source);
-    while (*(target + i) != '\n' && *(target + i))
+    char buf[1000];
+    fgets(buf, 1000, source);
+    strncpy(target,buf,length-1);
+    target[length]='\0';
+    if (strlen(buf)>length)
+        printf("String you entered was too long, data is partially lost.\n");
+    while (target[i] != '\n' && target[i])
         i++;
-    if (*(target + i) == '\n' && i)
-        *(target + i) = '\0';
+    if (target[i] == '\n' && i)
+        target[i] = '\0';
     return;
 }
 
@@ -101,11 +106,7 @@ int sort_up(employ_t * company, int workers_n)
 
 int compare(const void *a, const void *b)
 {
-    int i = 0;
-    employ_t *first = (employ_t *) a, *second = (employ_t *) b;
-    while (!(*(first->names[1] + i) - *(second->names[1] + i)))
-        i++;
-    return *(first->names[1] + i) - *(second->names[1] + i);
+    return strcmp(((employ_t *) a)->names[1], ((employ_t *) b)->names[1]);
 }
 
 int output_table(employ_t * company, int workers_n)
@@ -124,4 +125,15 @@ int output_table(employ_t * company, int workers_n)
             printf("%9d", company[i].salary[j]);
     }
     return 1;
+}
+
+int display_help(int argc,char** argv)
+{
+    if (argc>1 && strcmp(argv[1],"-h")==0)
+    {
+        printf ("This program gets information about workers and their salary and prints it in alphabetic order.\n"
+                "Name size(last name, patronymic) is limited to 15 characters.\n");
+        return 1;
+    }
+    return 0;
 }
