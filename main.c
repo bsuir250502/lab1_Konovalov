@@ -11,7 +11,7 @@ typedef struct employees {
 
 int input(employ_t *);
 int sort_up(employ_t *, int);
-int get_posint(void);
+int get_posint(int*);
 void fgets_c(char *, int, FILE *);
 int compare(const void *, const void *);
 int output_table(employ_t *, int);
