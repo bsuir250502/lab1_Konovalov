@@ -11,7 +11,7 @@ typedef struct employees {
 
 int input(employ_t *);
 int sort_up(employ_t *, int);
-int get_num(void);
+int get_posint(void);
 void fgets_c(char *, int, FILE *);
 int compare(const void *, const void *);
 int output_table(employ_t *, int);
@@ -47,8 +47,7 @@ int input(employ_t * company)
         fgets_c(company[i].names[2], NAME_SIZE, stdin);
         for (j = 0; j < 12; j++) {
             printf("Provide salary for %s\n", month_name(j));
-            fflush(stdin);
-            while ((company[i].salary[j] = get_num()) == -1)
+            while (get_posint(&company[i].salary[j]) == -1)
                 printf("Please print positive numbers.\n");
         }
     }
@@ -71,21 +70,16 @@ void fgets_c(char *target, int length, FILE * source)
     return;
 }
 
-int get_num(void)
+int get_posint(int* target)
 {
-    char tmp = 'a';
-    char buff[10];
-    int i = 0, output = 0;
-    fgets(buff, 8, stdin);
-    if ((tmp = buff[i]) == '\n')
-        return -1;
-    do {
-        if (tmp > '9' || tmp < '0')
-            return -1;
-        output = output * 10 + (tmp - '0');
-        i++;
-        tmp = buff[i];
-    } while (tmp && tmp != '\n');
+    char buff[1000];
+    int output = 0;
+    char* check;
+    printf ("Maximum 9 digit number\n");
+    fgets_c(buff, 1000, stdin);
+    *target=strtol(buff,&check,10);
+    if (*check!='\0' || strlen(buff)>9 || *target<0)
+        output=-1;
     return output;
 }
 
@@ -100,7 +94,7 @@ char *month_name(int i)
 
 int sort_up(employ_t * company, int workers_n)
 {
-    qsort(company, workers_n, sizeof(employ_t), &compare);
+    qsort(company, workers_n, sizeof(employ_t), compare);
     return 1;
 }
 
